@@ -1,7 +1,25 @@
 import {IInputs, IOutputs} from "./generated/ManifestTypes";
 
+// React
+import * as React from "react";
+import * as ReactDOM from "react-dom";
+
+// React Control and State Props
+import { BlockingDialog, IBlockingDialogProps } from "./BlockingDialog";
+
+
 export class reactapp02 implements ComponentFramework.StandardControl<IInputs, IOutputs> {
 
+	  // reference to the notifyOutputChanged method
+	  private notifyOutputChanged: () => void;
+	  // reference to the container div
+	  private theContainer: HTMLDivElement;
+	  // reference to the React props, prepopulated with a bound event handler
+	  private props: IBlockingDialogProps = {
+		numberOfThingsChanged: this.numberThingsChanged.bind(this)
+	  };
+
+	  
 	/**
 	 * Empty constructor.
 	 */
@@ -20,7 +38,9 @@ export class reactapp02 implements ComponentFramework.StandardControl<IInputs, I
 	 */
 	public init(context: ComponentFramework.Context<IInputs>, notifyOutputChanged: () => void, state: ComponentFramework.Dictionary, container:HTMLDivElement)
 	{
-		// Add control initialization code
+		this.notifyOutputChanged = notifyOutputChanged;
+		this.props.numberOfThings = context.parameters.numberOfThings.raw || 3;
+		this.theContainer = container;
 	}
 
 
@@ -30,7 +50,30 @@ export class reactapp02 implements ComponentFramework.StandardControl<IInputs, I
 	 */
 	public updateView(context: ComponentFramework.Context<IInputs>): void
 	{
-		// Add code to update control view
+		if (context.updatedProperties.includes("numberOfThings"))
+			this.props.numberOfThings = context.parameters.numberOfThings.raw || 3;
+
+		// Render the React component into the div container
+		ReactDOM.render(
+		// Create the React component
+		React.createElement(
+			BlockingDialog, // the class type of the React component found in Facepile.tsx
+			this.props
+		),
+		this.theContainer
+		);
+	}
+
+	/**
+   * Called by the React component when it detects a change in the number of faces shown
+   * @param newValue The newly detected number of faces
+   */
+	private numberThingsChanged(newValue: number) {
+		// only update if the number of faces has truly changed
+		if (this.props.numberOfThings !== newValue) {
+		this.props.numberOfThings = newValue;
+		this.notifyOutputChanged();
+		}
 	}
 
 	/** 
@@ -39,7 +82,9 @@ export class reactapp02 implements ComponentFramework.StandardControl<IInputs, I
 	 */
 	public getOutputs(): IOutputs
 	{
-		return {};
+		return {
+			numberOfThings: this.props.numberOfThings
+		  };
 	}
 
 	/** 
@@ -48,6 +93,6 @@ export class reactapp02 implements ComponentFramework.StandardControl<IInputs, I
 	 */
 	public destroy(): void
 	{
-		// Add code to cleanup control if necessary
+		ReactDOM.unmountComponentAtNode(this.theContainer);
 	}
 }
