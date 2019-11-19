@@ -16,7 +16,8 @@ export class reactapp02 implements ComponentFramework.StandardControl<IInputs, I
 	  private theContainer: HTMLDivElement;
 	  // reference to the React props, prepopulated with a bound event handler
 	  private props: IBlockingDialogProps = {
-		numberOfThingsChanged: this.numberThingsChanged.bind(this)
+		xValueChanged: this.xValueChanged.bind(this),
+		yValueChanged: this.yValueChanged.bind(this)
 	  };
 
 	  
@@ -39,7 +40,8 @@ export class reactapp02 implements ComponentFramework.StandardControl<IInputs, I
 	public init(context: ComponentFramework.Context<IInputs>, notifyOutputChanged: () => void, state: ComponentFramework.Dictionary, container:HTMLDivElement)
 	{
 		this.notifyOutputChanged = notifyOutputChanged;
-		this.props.numberOfThings = context.parameters.numberOfThings.raw || 3;
+		this.props.xValue = context.parameters.xValue.raw || 0;
+		this.props.yValue = context.parameters.yValue.raw || 0;
 		this.theContainer = container;
 	}
 
@@ -50,8 +52,11 @@ export class reactapp02 implements ComponentFramework.StandardControl<IInputs, I
 	 */
 	public updateView(context: ComponentFramework.Context<IInputs>): void
 	{
-		if (context.updatedProperties.includes("numberOfThings"))
-			this.props.numberOfThings = context.parameters.numberOfThings.raw || 3;
+		if (context.updatedProperties.includes("xValue"))
+			this.props.xValue = context.parameters.xValue.raw || 0;
+
+		if (context.updatedProperties.includes("yValue"))
+			this.props.yValue = context.parameters.yValue.raw || 0;
 
 		// Render the React component into the div container
 		ReactDOM.render(
@@ -68,13 +73,25 @@ export class reactapp02 implements ComponentFramework.StandardControl<IInputs, I
    * Called by the React component when it detects a change in the number of faces shown
    * @param newValue The newly detected number of faces
    */
-	private numberThingsChanged(newValue: number) {
+	private xValueChanged(newValue: number) {
 		// only update if the number of faces has truly changed
-		if (this.props.numberOfThings !== newValue) {
-		this.props.numberOfThings = newValue;
+		if (this.props.xValue !== newValue) {
+		this.props.xValue = newValue;
 		this.notifyOutputChanged();
 		}
 	}
+
+		/**
+   * Called by the React component when it detects a change in the number of faces shown
+   * @param newValue The newly detected number of faces
+   */
+  private yValueChanged(newValue: number) {
+	// only update if the number of faces has truly changed
+	if (this.props.yValue !== newValue) {
+	this.props.yValue = newValue;
+	this.notifyOutputChanged();
+	}
+}
 
 	/** 
 	 * It is called by the framework prior to a control receiving new data. 
@@ -83,7 +100,8 @@ export class reactapp02 implements ComponentFramework.StandardControl<IInputs, I
 	public getOutputs(): IOutputs
 	{
 		return {
-			numberOfThings: this.props.numberOfThings
+			xValue: this.props.xValue,
+			yValue: this.props.yValue
 		  };
 	}
 

@@ -1,14 +1,25 @@
 import * as React from "react";
+import { render } from 'react-dom';
+
 import { Checkbox } from "office-ui-fabric-react/lib/Checkbox";
 import { DefaultButton, IButtonProps, PrimaryButton } from 'office-ui-fabric-react/lib/Button';
 import { Dialog, DialogType, DialogFooter } from 'office-ui-fabric-react/lib/Dialog';
 import { ContextualMenu } from 'office-ui-fabric-react/lib/ContextualMenu';
 import { SpinButton } from 'office-ui-fabric-react/lib/SpinButton';
 import { ComboBox, IComboBoxOption, SelectableOptionMenuItemType } from 'office-ui-fabric-react/lib/index';
+import { Slider } from 'antd';
+import { Row, Col } from 'antd';
+
+import { Stage, Layer, Rect, Text, Line, Circle } from 'react-konva';
+import Konva from 'konva';
 
 export interface IBlockingDialogProps {
-    numberOfThings?: number;
-    numberOfThingsChanged?: (newValue: number) => void;
+    xValue?: number;
+    xValueChanged?: (newValue: number) => void;
+
+    yValue?: number;
+    yValueChanged?: (newValue: number) => void;
+
 }
 
 export interface IBlockingDialogState extends React.ComponentState, IBlockingDialogProps {
@@ -18,28 +29,13 @@ export interface IBlockingDialogState extends React.ComponentState, IBlockingDia
     isDraggable: boolean;
 }
   
-const INITIAL_OPTIONS: IComboBoxOption[] = [
-    { key: 'Header1', text: 'First heading', itemType: SelectableOptionMenuItemType.Header },
-    { key: 'A', text: 'Option A' },
-    { key: 'B', text: 'Option B' },
-    { key: 'C', text: 'Option C' },
-    { key: 'D', text: 'Option D' },
-    { key: 'divider', text: '-', itemType: SelectableOptionMenuItemType.Divider },
-    { key: 'Header2', text: 'Second heading', itemType: SelectableOptionMenuItemType.Header },
-    { key: 'E', text: 'Option E' },
-    { key: 'F', text: 'Option F', disabled: true },
-    { key: 'G', text: 'Option G' },
-    { key: 'H', text: 'Option H' },
-    { key: 'I', text: 'Option I' },
-    { key: 'J', text: 'Option J' }
-  ];
-
 export class BlockingDialog extends React.Component<IBlockingDialogProps, IBlockingDialogState> {
     constructor(props: IBlockingDialogProps) {
         super(props);
     
         this.state = {
-          numberOfThings: props.numberOfThings || 10,
+          xValue: props.xValue || 0,
+          yValue: props.yValue || 0,
           imagesFadeIn: true,
           controlSize: 100,
           hideDialog: true, 
@@ -61,54 +57,115 @@ export class BlockingDialog extends React.Component<IBlockingDialogProps, IBlock
 
 
         const { hideDialog, isDraggable, numberOfThings, controlSize } = this.state;
-    
+
+        const { xValue, yValue } = this.state;
+        const styleSliderVertical = {
+          display: 'inline-block',
+          height: 300,
+        };
+        const styleSliderHorizontal = {
+          display: 'inline-block',
+          width: 300,
+          marginBottom: 10,
+        };
+
+        let displayValueX : number = xValue ? xValue * 3 : 0;
+        let displayValueY : number = yValue ? (100 - yValue) * 3 : 0;
+
+        let startPointY : number = 0;
+        let startPointX : number = 0;
+
+
+        if (displayValueX >= 150 && displayValueY <= 150) {
+          startPointY = 0;
+          startPointX = 150;
+        }
+        else if (displayValueX >= 150 && displayValueY >= 150){
+          startPointY = 150;
+          startPointX = 150;
+        }
+        else if (displayValueX <= 150 && displayValueY >= 150){
+          startPointY = 150;
+          startPointX = 0;
+        }
         return (
             <div>
+
+
+
+
               <Checkbox label="Is draggable" onChange={this._toggleDraggable} checked={isDraggable} />
-              <DefaultButton secondaryText="Opens the Sample Dialog" onClick={this._showDialog} text="Open Dialog" />
+              <DefaultButton secondaryText="Opens the Sample Dialog" onClick={this._showDialog} text="Rate Subject" />
               <Dialog
+                maxWidth={850}
                 hidden={hideDialog}
                 onDismiss={this._closeDialog}
                 dialogContentProps={{
                   type: DialogType.normal,
-                  title: 'Missing Subject',
-                  subText: 'Do you want to send this message without a subject?'
+                  title: 'Please rate your subject',
+                  subText: 'How would you rate X and Y?'
                 }}
                 modalProps={{
                   isBlocking: true,
-                  styles: { main: { maxWidth: 450 } },
+                  styles: { main: { maxWidth: 850 } },
                   dragOptions: isDraggable ? this._dragOptions : undefined
                 }}
-              >
-                <SpinButton
-                  defaultValue="0"
-                  label={'Number of subjects to add:'}
-                  min={0}
-                  max={100}
-                  step={1}
-                  iconProps={{ iconName: 'IncreaseIndentLegacy' }}
-                  // tslint:disable:jsx-no-lambda
-                  onFocus={() => console.log('onFocus called')}
-                  onBlur={() => console.log('onBlur called')}
-                  incrementButtonAriaLabel={'Increase value by 1'}
-                  decrementButtonAriaLabel={'Decrease value by 1'}
-                />
-                <ComboBox
-                  label="Sample subject lines you could add instead"
-                  placeholder="Select or type an option"
-                  allowFreeform
-                  autoComplete="on"
-                  options={INITIAL_OPTIONS}
-                />
+                >
+
+                <Row align="bottom" type="flex" >
+                <Col span={2}><div style={styleSliderVertical}><Slider min={0} max={100} defaultValue={yValue} vertical onChange={this._sliderChangeY}  /></div></Col>
+                <Col span={22}><Stage width={300} height={300}>
+                      <Layer>
+                              <Rect x={0} y={0} width={300} height={300} fill="#f0f0f0" />
+
+                              <Rect x={startPointX} y={startPointY} width={150} height={150} fill="#e0e0e0" />
+
+
+                              <Line points={[0, 150, 300, 150]} stroke="#d0d0d0" tension={1} />
+                              <Line points={[150, 0, 150, 300]} stroke="#d0d0d0" tension={1} />
+                    
+                              <Circle x={displayValueX} y={displayValueY} radius={10} fill="#997799" />
+                              <Circle x={displayValueX} y={displayValueY} radius={9} fill="#fff" />
+                              
+                              <Circle x={displayValueX} y={displayValueY} radius={5} fill="#997799" />
+                              
+
+                      </Layer>
+                    </Stage></Col></Row>    
+              <Row align="bottom" type="flex" justify="end" >
+                <Col span={2}></Col>
+                <Col span={22}><div style={styleSliderHorizontal}><Slider min={0} max={100} defaultValue={xValue}  onChange={this._sliderChangeX} /></div></Col>
+              </Row>                   
+
+
                 <DialogFooter>
-                  <PrimaryButton onClick={this._closeDialog} text="Send" />
-                  <DefaultButton onClick={this._closeDialog} text="Don't send" />
+                  <PrimaryButton onClick={this._closeDialog} text="Ok" />
                 </DialogFooter>
               </Dialog>
             </div>
         );
       }
     
+      private _sliderChangeX = (value: any ): void => {
+        this.setState({ xValue: value });
+        
+        if(this.props.xValueChanged)
+          this.props.xValueChanged(value) ; 
+
+        console.log('onChange: ', value);
+      };
+
+      private _sliderChangeY = (value: any ): void => {
+        //this.setState({ xValue: value });
+        this.setState({ yValue: value });
+
+        if(this.props.yValueChanged)
+         this.props.yValueChanged(value) ; 
+
+        console.log('onChange: ', value);
+      };
+
+
       private _showDialog = (): void => {
         this.setState({ hideDialog: false });
       };
