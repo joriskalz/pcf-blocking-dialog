@@ -5,8 +5,9 @@ import { Checkbox } from "office-ui-fabric-react/lib/Checkbox";
 import { DefaultButton, IButtonProps, PrimaryButton } from 'office-ui-fabric-react/lib/Button';
 import { Dialog, DialogType, DialogFooter } from 'office-ui-fabric-react/lib/Dialog';
 import { ContextualMenu } from 'office-ui-fabric-react/lib/ContextualMenu';
-import { SpinButton } from 'office-ui-fabric-react/lib/SpinButton';
-import { ComboBox, IComboBoxOption, SelectableOptionMenuItemType } from 'office-ui-fabric-react/lib/index';
+import { TextField, MaskedTextField } from 'office-ui-fabric-react/lib/TextField';
+import { DefaultPalette, Stack, IStackStyles, IStackTokens, IStackItemStyles } from 'office-ui-fabric-react';
+
 import { Slider } from 'antd';
 import { Row, Col } from 'antd';
 
@@ -69,6 +70,18 @@ export class BlockingDialog extends React.Component<IBlockingDialogProps, IBlock
           marginBottom: 10,
         };
 
+        const stackItemStyles: IStackItemStyles = {
+          root: {
+            alignItems: 'center',
+            display: 'flex',
+            height: 90,
+            width: 160,
+            justifyContent: 'center'
+          }
+        };
+
+        const stackTokens: IStackTokens = { childrenGap: 5 };
+
         let displayValueX : number = xValue ? xValue * 3 : 0;
         let displayValueY : number = yValue ? (100 - yValue) * 3 : 0;
 
@@ -94,8 +107,24 @@ export class BlockingDialog extends React.Component<IBlockingDialogProps, IBlock
 
 
 
-              <Checkbox label="Is draggable" onChange={this._toggleDraggable} checked={isDraggable} />
-              <DefaultButton secondaryText="Opens the Sample Dialog" onClick={this._showDialog} text="Rate Subject" />
+              {/* <Checkbox label="Is draggable" onChange={this._toggleDraggable} checked={isDraggable} /> */}
+
+              <Stack horizontal verticalAlign="end" tokens={stackTokens}>
+                <Stack.Item styles={stackItemStyles}>
+                  <TextField styles={{ fieldGroup: { width: 60 } }} readOnly value={xValue ? xValue.toString() : "0"    } />
+                </Stack.Item>
+                <Stack.Item styles={stackItemStyles}>
+                  <TextField styles={{ fieldGroup: { width: 60 } }}  readOnly value={yValue ? yValue.toString() : "0"    } />
+                </Stack.Item>
+                <Stack.Item styles={stackItemStyles} >
+                  <DefaultButton secondaryText="Opens the Rating Dialog" onClick={this._showDialog} text="Rate Subject" />
+                </Stack.Item>
+              </Stack>              
+
+              
+              
+            	
+
               <Dialog
                 maxWidth={850}
                 hidden={hideDialog}
