@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <manifest>
-  <control namespace="jkalz" constructor="reactapp02" version="0.0.1" display-name-key="reactapp02" description-key="reactapp02 description" control-type="standard">
+  <control namespace="jkalz" constructor="reactapp02" version="0.0.2" display-name-key="reactapp02" description-key="reactapp02 description" control-type="standard">
     <property name="xValue" display-name-key="xValue_Display_Key" description-key="xValue_Desc_Key" of-type="Whole.None" usage="bound" required="true" />
     <property name="yValue" display-name-key="yValue_Display_Key" description-key="yValue_Desc_Key" of-type="Whole.None" usage="bound" required="true" />
     <resources>
